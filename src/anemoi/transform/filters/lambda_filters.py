@@ -114,11 +114,17 @@ class EarthkitFieldLambdaFilter(MatchingFieldsFilter):
         if not isinstance(fn_kwargs, dict):
             raise ValueError("Expected 'fn_kwargs' to be a dictionary. " f"Got {fn_kwargs} instead.")
 
-        self.fn = self._import_fn(fn) if isinstance(fn, str) else fn
+        try:
+            self.fn = self._import_fn(fn) if isinstance(fn, str) else fn
+        except ValueError:
+            self.fn = eval(fn) 
 
         self.backward_fn: Callable[[Field, Any], Field] | None
         if isinstance(backward_fn, str):
-            self.backward_fn = self._import_fn(backward_fn)
+            try:
+                self.backward_fn = self._import_fn(backward_fn)
+            except ValueError:
+                self.backward_fn = eval(backward_fn)
         else:
             self.backward_fn = backward_fn
 
